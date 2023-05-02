@@ -1,5 +1,8 @@
 # Spring with Apache Kafka
 
+## Swagger
+http://localhost:8081/swagger-ui/index.html#/
+
 ## Crear topic
 Los mensajes se procesan en topics, para crear uno deberás ejecutar el siguiente comando:
 ````
@@ -13,6 +16,7 @@ bin/kafka-topics.sh
 - topic, nombre del topic a crear
 - partitions, número de particiones
 - replication-factor, número de réplicas por broker
+
 
 ## Listar topics
 ````
@@ -68,3 +72,5 @@ bin/kafka-console-consumer.sh
 
 1. mvn clean install
 2. docker-compose up -d
+
+Podemos crear los topics accediendo a Kafka-ui mediante http://localhost:8080/

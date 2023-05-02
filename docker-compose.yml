@@ -1,10 +1,12 @@
-version: '3.3'
+version: '3'
 
 services:
   spring-kafka-app:
     build: .
     ports:
       - 8081:8081
+    depends_on:
+      - kafka-broker
   zookeeper-kafka:
     image: confluentinc/cp-zookeeper:latest
     ports:
@@ -14,12 +16,12 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
       # fake healthcheck just to have one to simplify status check
-      test: [ 'CMD', 'date' ]
+      test: ['CMD', 'date']
       interval: 10s
       timeout: 5s
       retries: 5
   # docs at: https://registry.hub.docker.com/r/wurstmeister/kafka
-  kafka:
+  kafka-broker:
     image: wurstmeister/kafka:latest
     restart: always
     depends_on:
@@ -34,12 +36,14 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-kafka:2181'
       PORT_COMMAND: 'docker port $$(hostname) 9092/tcp | cut -d: -f2'
-      KAFKA_LISTENERS: 'LISTENER_INTERNAL://kafka:29092,LISTENER_HOST://:9092'
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_INTERNAL://kafka:29092,LISTENER_HOST://localhost:_{PORT_COMMAND}
+      KAFKA_LISTENERS: 'LISTENER_INTERNAL://kafka-broker:29092,LISTENER_HOST://:9092'
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INTERNAL://kafka-broker:29092,LISTENER_HOST://localhost:_{PORT_COMMAND}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INTERNAL:PLAINTEXT,LISTENER_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INTERNAL
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-broker -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_CREATE_TOPICS: 'test:1:1'
+      KAFKA_CREATE_TOPICS: 'test:3:3'
     healthcheck:
       test:
         [
@@ -47,7 +51,7 @@ services:
           '/opt/kafka/bin/kafka-topics.sh',
           '--list',
           '--bootstrap-server',
-          'kafka:29092',
+          'kafka-broker:29092',
         ]
       interval: 10s
       timeout: 5s
@@ -60,9 +64,9 @@ services:
       - "8080:8080"
     depends_on:
       - zookeeper-kafka
-      - kafka
+      - kafka-broker
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper-kafka:2181
-      KAFKA_CLUSTERS_0_JMXPORT: 9997
+      KAFKA_CLUSTERS_0_JMXPORT: 1099
