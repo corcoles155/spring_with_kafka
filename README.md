@@ -72,5 +72,6 @@ bin/kafka-console-consumer.sh
 
 1. mvn clean install
 2. docker-compose up -d
+3. Ejecutar aplicación spring_with_kafka
 
 Podemos crear los topics accediendo a Kafka-ui mediante http://localhost:8080/

@@ -17,7 +17,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    private static final String GROUP_ID = "group";
+    private static final String GROUP_ID = "group1";
+    private static final Object KAFKA_BROKER = "localhost:9092";
 
     /**
      * Consumer
@@ -36,7 +37,7 @@ public class KafkaConfig {
 
     private Map<String, Object> consumerProps() {
         final Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKER);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
@@ -59,7 +60,7 @@ public class KafkaConfig {
 
     private Map<String, Object> producerProps() {
         final Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKER);
         props.put(ProducerConfig.RETRIES_CONFIG, 0);
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
         props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
